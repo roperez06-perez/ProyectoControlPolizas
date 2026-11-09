@@ -9,3 +9,21 @@
 # Files that might appear in the root
 .polizas_cache/
 *.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+.env
+
+# App runtime
+flask_app.pid
+flask_app.log
+prueba_laura.pdf
+
+# uv default package (not used by this app)
+src/
+
+# macOS metadata
+**/.DS_Store

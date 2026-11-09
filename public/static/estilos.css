@@ -1,0 +1,190 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  background: #F3F2F2;
+  color: #201E1D;
+  line-height: 1.5;
+}
+
+.cabecera {
+  background: #AE1800;
+  color: #ffffff;
+  padding: 16px;
+  border-bottom: 4px solid #201E1D;
+}
+
+.contenedor-cabecera {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.cabecera h1 {
+  font-size: 1.5rem;
+  margin-bottom: 6px;
+}
+
+.fecha-corte {
+  font-size: 0.95rem;
+  opacity: 0.95;
+}
+
+.contenido {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 16px;
+}
+
+.pie {
+  background: #201E1D;
+  color: #F3F2F2;
+  text-align: center;
+  padding: 14px;
+  font-size: 0.85rem;
+  margin-top: 30px;
+}
+
+/* Tarjetas */
+.tarjetas {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.tarjeta {
+  flex: 1;
+  min-width: 150px;
+  background: #ffffff;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.tarjeta h3 {
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  opacity: 0.8;
+}
+
+.tarjeta .numero {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.tarjeta.vigente .numero { color: #2e7d32; } /* verde */
+.tarjeta.por-vencer .numero { color: #f57c00; } /* ámbar */
+.tarjeta.vencida .numero { color: #c62828; } /* rojo */
+
+/* Botón */
+.accion {
+  margin-bottom: 24px;
+}
+
+.boton-descargar {
+  display: inline-block;
+  background: #AE1800;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  border: 2px solid #201E1D;
+}
+
+.boton-descargar:hover {
+  background: #c62828;
+}
+
+/* Paneles */
+.panel {
+  background: #ffffff;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.panel h2 {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+  color: #201E1D;
+}
+
+.lista-primas,
+.lista-inconsistencias {
+  list-style: disc inside;
+  padding-left: 0;
+}
+
+.lista-primas li,
+.lista-inconsistencias li {
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+}
+
+/* Tabla */
+.tabla table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.tabla th,
+.tabla td {
+  border: 1px solid #cccccc;
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.tabla th {
+  background: #F3F2F2;
+  font-weight: bold;
+  color: #201E1D;
+}
+
+.fila-vencida td {
+  background: #ffebee; /* rojo claro */
+}
+
+.fila-por-vencer td {
+  background: #fff3e0; /* ámbar claro */
+}
+
+.estado {
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.estado.vencida { color: #c62828; }
+.estado.por-vencer { color: #f57c00; }
+.estado.vigente { color: #2e7d32; }
+
+.nota {
+  font-size: 0.75rem;
+  color: #666;
+  margin-left: 6px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .contenido {
+    padding: 0 12px;
+  }
+
+  .tabla table {
+    font-size: 0.8rem;
+  }
+
+  .tabla th,
+  .tabla td {
+    padding: 6px 8px;
+  }
+}
