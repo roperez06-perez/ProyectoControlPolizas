@@ -1,58 +1,27 @@
 # AGENTS.md — Proyecto Control de Pólizas
 
-## Propósito del proyecto
+## Repositorio
 
-Proyecto académico de la **Universidad Fundepos — Técnico en IA Empresarial** para el control de pólizas de seguros. El repositorio contiene pólizas ficticias en formato PDF, organizadas por aseguradora y ramo, para ser procesadas con IA (extracción de datos, análisis de vigencia, primas, coberturas, etc.).
+Solo contiene pólizas ficticias en PDF bajo `polizas/`. **No hay código, build, tests ni CI.** Todo el procesamiento se hace extrayendo texto de los PDF con IA.
 
-> ⚠️ Todas las pólizas son **documentos ficticios con fines académicos**. No contienen datos reales de personas.
+- `polizas/` — 20 PDFs de una sola página.
+- `.gitignore` ignora `.polizas_cache/` y `*.log`: guarda ahí los datos extraídos; no confirmes nada dentro del repo.
 
----
+## Nombrado de archivos
 
-## Estructura del repositorio
-
-```
-Proyecto Control de Polizas/
-├── AGENTS.md                 # este archivo (instrucciones para agentes)
-├── polizas/                  # pólizas en PDF
-│   ├── Poliza_AIS-2026-0001.pdf   # Aseguradora del Istmo S.A. — Automóvil (5)
-│   ├── Poliza_PCS-2026-0001.pdf   # Protección Caribe S.A. — Hogar (9)
-│   └── Poliza_SPC-2026-0001.pdf   # Seguros Pacífico Central S.A. — Vida (6)
-```
-
-### Convención de nombres de archivo
-
-`Poliza_<CODIGO_ASEGURADORA>-<AAAA>-<NNNN>.pdf`
+`Poliza_<CODIGO>-<AAAA>-<NNNN>.pdf`
 
 | Código | Aseguradora | Ramo | Cantidad |
 |--------|-------------|------|----------|
-| `AIS` | Aseguradora del Istmo S.A. | Automóvil | 5 |
-| `PCS` | Protección Caribe S.A. | Hogar | 9 |
-| `SPC` | Seguros Pacífico Central S.A. | Vida | 6 |
+| AIS | Aseguradora del Istmo S.A. | Automóvil | 5 |
+| PCS | Protección Caribe S.A. | Hogar | 9 |
+| SPC | Seguros Pacífico Central S.A. | Vida | 6 |
 
----
+## Modelo de datos (extraer en este orden)
 
-## Modelo de datos de cada póliza
+`archivo, aseguradora, tipo, numero_poliza, ramo, tomador, cedula, vigencia_desde, vigencia_hasta, prima_anual, forma_pago, suma_asegurada, intermediario, asesor, coberturas` (lista).
 
-Cada PDF contiene los siguientes campos (extraer en este orden):
-
-| Campo | Ejemplo | Notas |
-|-------|---------|-------|
-| Aseguradora | `Aseguradora del Istmo S.A.` | Nombre completo de la compañía |
-| Tipo | `POLIZA DE SEGURO DE AUTOMOVIL` | Automóvil / Hogar / Vida |
-| Número de póliza | `AIS-2026-0001` | Coincide con el nombre del archivo |
-| Ramo | `Automovil` | `Automovil`, `Hogar` o `Vida` |
-| Tomador / Asegurado | `Laura Jimenez Solano` | Nombre de la persona |
-| Cédula | `1-0456-0789` | Formato costarricense |
-| Vigencia desde | `14/11/2025` | Formato DD/MM/AAAA |
-| Vigencia hasta | `14/11/2026` | Formato DD/MM/AAAA |
-| Prima anual | `CRC 228,000.00` | Colón costarricense (CRC) |
-| Forma de pago | `Anual` | `Anual` o `Mensual` |
-| Suma asegurada | `CRC 18,240,000.00` | Monto asegurado en CRC |
-| Intermediario | `Corredora de Seguros Horizonte` | Corredora de seguros |
-| Asesor | `Karla Umana` | Asesor asignado |
-| Coberturas principales | `dano propio, responsabilidad civil...` | Lista de coberturas |
-
-Ejemplo de registro extraído:
+Ejemplo:
 
 ```json
 {
@@ -74,42 +43,17 @@ Ejemplo de registro extraído:
 }
 ```
 
----
+## Leer PDFs
 
-## Cómo leer los PDFs
+Este modelo **no lee PDFs directamente**. Usa `pypdf` (`PdfReader(file).pages[0].extract_text()`) o `pdftotext`. Cada póliza tiene una sola página.
 
-Este modelo de lenguaje **no puede leer PDFs directamente**. Usa una librería de extracción de texto:
+## Reglas
 
-- Python: `pypdf` (`PdfReader(file).pages[0].extract_text()`)
-- Shell: `pdftotext` (si está disponible)
+- No modifiques ni elimines los PDF originales; son la fuente de verdad.
+- Fechas: DD/MM/AAAA. Monedas: CRC con miles en coma (ej. `228,000.00`).
+- Texto en español; nombres de campo en español.
+- Intermediario siempre `Corredora de Seguros Horizonte`. El asesor **varía** (`Karla Umana`, `Diego Chaves`, `Mariana Solis`) — no asumas uno único.
 
-Todas las pólizas son de una sola página (`Pagina 1 de 1`).
+## Vigencia (fecha de referencia: 09/11/2026)
 
----
-
-## Tareas comunes para agentes
-
-1. **Inventario de pólizas**: listar todos los archivos en `polizas/` con aseguradora, ramo, número y tomador.
-2. **Conteo por ramo / aseguradora**: agrupar pólizas por código de aseguradora o ramo.
-3. **Control de vigencia**: identificar pólizas vencidas o por vencerse comparando `vigencia_hasta` con la fecha actual (hoy es 09/11/2026).
-4. **Análisis de primas**: sumar primas anuales por ramo, aseguradora o asesor (convertir `CRC X,XXX.00` a número).
-5. **Búsqueda por tomador/cédula**: localizar pólizas de un cliente específico.
-6. **Reporte de coberturas**: listar coberturas principales por ramo.
-
----
-
-## Reglas y convenciones
-
-- **No modifiques ni elimines** los PDF originales; son la fuente de verdad del proyecto académico.
-- Los archivos se nombran con mayúsculas, guiones bajos y guiones: `Poliza_AIS-2026-0001.pdf`. Mantén esa convención si agregas archivos.
-- Las fechas usan formato **DD/MM/AAAA** y las monedas usan **CRC** con separador de miles en coma (ej. `228,000.00`).
-- El texto de los PDF está en español; mantén los nombres de campos en español al extraerlos.
-- Si generas reportes o código nuevo, documenta el campo de origen de cada dato.
-
----
-
-## Contexto útil
-
-- Fecha actual: **lunes 09 de noviembre de 2026**.
-- Todas las pólizas tienen vigencia de 1 año.
-- Intermediario común: `Corredora de Seguros Horizonte`; asesor común: `Karla Umana`.
+Compara `vigencia_hasta` con la fecha actual para detectar pólizas vencidas o por vencerse. Algunas ya vencieron antes de 09/11/2026 (ej. `AIS-2026-0005` hasta 26/08/2026, `PCS-2026-0009` hasta 05/09/2026).
