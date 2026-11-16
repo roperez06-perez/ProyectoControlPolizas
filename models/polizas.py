@@ -28,8 +28,21 @@ def estado_poliza(hasta, fecha_corte=FECHA_CORTE):
     return "Vigente"
 
 
-def _cargar_maestro():
-    """Carga el maestro de clientes. Si no existe el archivo, retorna diccionario vacio."""
+def _cargar_maestro(df_clientes=None):
+    """Carga el maestro de clientes.
+
+    Si se recibe un DataFrame lo usa directamente. Si no, lee el archivo
+    default data/Maestro_Clientes.xlsx. Si falla, retorna diccionario vacio.
+    """
+    if df_clientes is not None:
+        maestro = {}
+        for _, fila in df_clientes.iterrows():
+            cedula = str(fila["Cedula"]).strip()
+            maestro[cedula] = {
+                "correo": fila.get("Correo", ""),
+            }
+        return maestro
+
     try:
         df_clientes = cargar_clientes()
         maestro = {}
@@ -43,14 +56,16 @@ def _cargar_maestro():
         return {}
 
 
-def calcular_resultados(fecha_corte=FECHA_CORTE, carpeta="polizas"):
+def calcular_resultados(fecha_corte=FECHA_CORTE, carpeta="polizas", df_clientes=None):
     """Cruza cada poliza con el maestro por cedula, calcula dias hasta vencer y estado.
 
     Devuelve una lista de diccionarios ordenada de menos a mas dias
     (lo urgente primero). Cada diccionario incluye los campos de la poliza
     mas: correo, en_maestro, dias, estado.
+
+    Si se recibe df_clientes se usa ese maestro en lugar del archivo default.
     """
-    maestro = _cargar_maestro()
+    maestro = _cargar_maestro(df_clientes)
     polizas = cargar_polizas(carpeta)
 
     resultados = []

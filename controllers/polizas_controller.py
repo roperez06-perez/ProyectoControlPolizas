@@ -4,9 +4,11 @@ Este controlador NO calcula nada: solo llama a models/ y services/.
 """
 
 import io
+import os
 import zipfile
 
-from flask import Blueprint, render_template, send_file, abort
+from flask import Blueprint, render_template, send_file, abort, request, session, redirect, url_for, flash, current_app
+from werkzeug.utils import secure_filename
 
 from models.polizas import (
     calcular_resultados,
@@ -17,14 +19,26 @@ from models.polizas import (
     buscar_por_numero,
 )
 from services.generador_aviso import crear_aviso_pdf
+from models.datos import cargar_clientes_desde_archivo
 
 polizas_bp = Blueprint("polizas", __name__)
+
+EXTENSIONES_PERMITIDAS = {".xlsx", ".xls"}
 
 
 @polizas_bp.route("/")
 def inicio():
     """Tablero principal: contadores, primas, inconsistencias y tabla de polizas."""
-    resultados = calcular_resultados()
+    df_clientes = None
+    ruta_excel = session.get("ruta_excel_clientes")
+    if ruta_excel and os.path.exists(ruta_excel):
+        try:
+            df_clientes = cargar_clientes_desde_archivo(ruta_excel)
+        except Exception:
+            flash("No se pudo leer el archivo Excel importado. Intenta nuevamente.", "error")
+            session.pop("ruta_excel_clientes", None)
+
+    resultados = calcular_resultados(df_clientes=df_clientes)
     conteo = contar_por_estado(resultados)
     primas = primas_por_aseguradora(resultados)
     inconsistencias = buscar_inconsistencias(resultados)
@@ -37,6 +51,43 @@ def inicio():
         inconsistencias=inconsistencias,
         fecha_corte=FECHA_CORTE,
     )
+
+
+@polizas_bp.route("/importar-clientes", methods=["GET", "POST"])
+def importar_clientes():
+    """Recibe el archivo Excel de clientes subido por el usuario."""
+    if request.method == "POST":
+        if "archivo_excel" not in request.files:
+            flash("No seleccionaste ningún archivo.", "error")
+            return redirect(request.url)
+
+        archivo = request.files["archivo_excel"]
+
+        if archivo.filename == "":
+            flash("No seleccionaste ningún archivo.", "error")
+            return redirect(request.url)
+
+        nombre_archivo = archivo.filename.lower()
+        extension = os.path.splitext(nombre_archivo)[1]
+        if extension not in EXTENSIONES_PERMITIDAS:
+            flash("Solo se permiten archivos Excel (.xlsx, .xls).", "error")
+            return redirect(request.url)
+
+        # Guardar el archivo temporalmente en la carpeta de uploads
+        carpeta_uploads = current_app.config["UPLOAD_FOLDER"]
+        os.makedirs(carpeta_uploads, exist_ok=True)
+
+        nombre_seguro = secure_filename(archivo.filename)
+        ruta_temp = os.path.join(carpeta_uploads, nombre_seguro)
+        archivo.save(ruta_temp)
+
+        # Guardar la ruta en la sesion para usarla en el tablero
+        session["ruta_excel_clientes"] = ruta_temp
+
+        flash("Clientes importados correctamente desde el Excel.", "exito")
+        return redirect(url_for("polizas.inicio"))
+
+    return render_template("inicio.html")
 
 
 @polizas_bp.route("/aviso/<numero>")

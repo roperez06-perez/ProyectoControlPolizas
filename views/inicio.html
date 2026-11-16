@@ -2,6 +2,26 @@
 
 {% block contenido %}
 
+{% with mensajes = get_flashed_messages(with_categories=true) %}
+  {% if mensajes %}
+    <section class="panel flash-mensajes">
+      {% for categoria, mensaje in mensajes %}
+        <div class="flash {{ categoria }}">{{ mensaje }}</div>
+      {% endfor %}
+    </section>
+  {% endif %}
+{% endwith %}
+
+<section class="panel importar">
+  <h2>Importar insumo de clientes</h2>
+  <p>Sube el archivo Excel <strong>Maestro_Clientes.xlsx</strong> con la hoja "Clientes" y las columnas "Cedula" y "Correo".</p>
+  <form action="{{ url_for('polizas.importar_clientes') }}" method="post" enctype="multipart/form-data">
+    <input type="file" name="archivo_excel" accept=".xlsx,.xls" required>
+    <button type="submit" class="boton-importar">Importar clientes</button>
+  </form>
+  <p class="nota-importar">El archivo se usa solo durante esta sesion. Al reiniciar la app se vuelve al maestro por defecto.</p>
+</section>
+
 <section class="tarjetas">
   <div class="tarjeta vigente">
     <h3>Vigentes</h3>

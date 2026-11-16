@@ -60,6 +60,16 @@ def cargar_clientes(ruta_excel="data/Maestro_Clientes.xlsx", hoja="Clientes"):
     return df
 
 
+def cargar_clientes_desde_archivo(ruta_excel, hoja="Clientes"):
+    """Lee un archivo Excel de clientes subido por el usuario y devuelve un DataFrame.
+
+    ruta_excel puede ser un path de archivo o un objeto tipo archivo (file-like).
+    """
+    df = pd.read_excel(ruta_excel, sheet_name=hoja, dtype={"Cedula": str})
+    df["Cedula"] = df["Cedula"].str.strip()
+    return df
+
+
 def leer_poliza(ruta_pdf):
     """Extrae los datos de una poliza PDF y devuelve un diccionario.
 
