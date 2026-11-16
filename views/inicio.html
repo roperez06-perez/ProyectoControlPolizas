@@ -12,14 +12,26 @@
   {% endif %}
 {% endwith %}
 
-<section class="panel importar">
-  <h2>Importar insumo de clientes</h2>
-  <p>Sube el archivo Excel <strong>Maestro_Clientes.xlsx</strong> con la hoja "Clientes" y las columnas "Cedula" y "Correo".</p>
-  <form action="{{ url_for('polizas.importar_clientes') }}" method="post" enctype="multipart/form-data">
-    <input type="file" name="archivo_excel" accept=".xlsx,.xls" required>
-    <button type="submit" class="boton-importar">Importar clientes</button>
-  </form>
-  <p class="nota-importar">El archivo se usa solo durante esta sesion. Al reiniciar la app se vuelve al maestro por defecto.</p>
+<section class="panel acciones-panel">
+  <h2>Acciones</h2>
+  <div class="acciones-grupo">
+    <form action="{{ url_for('polizas.importar_clientes') }}" method="post" enctype="multipart/form-data" class="accion-item">
+      <label class="etiqueta-archivo">
+        <input type="file" name="archivo_excel" accept=".xlsx,.xls" required>
+        <span class="texto-archivo">Seleccionar Excel</span>
+      </label>
+      <button type="submit" class="boton boton-importar">Importar clientes</button>
+      <p class="nota-accion">Maestro de clientes (.xlsx, .xls)</p>
+    </form>
+
+    <form action="{{ url_for('polizas.procesar') }}" method="post" class="accion-item">
+      <button type="submit" class="boton boton-procesar">Generar proceso</button>
+      <p class="nota-accion">Recalcular estados y cruce con maestro</p>
+    </form>
+
+    <a href="{{ url_for('polizas.descargar_avisos') }}" class="boton boton-exportar">Exportar avisos (.zip)</a>
+    <p class="nota-accion">Polizas por vencer y vencidas</p>
+  </div>
 </section>
 
 <section class="tarjetas">
