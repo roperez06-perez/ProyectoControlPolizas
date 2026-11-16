@@ -37,9 +37,18 @@
   </div>
 </section>
 
-<section class="accion">
+<section class="acciones">
+  <form action="{{ url_for('polizas.importar_clientes') }}" method="post" enctype="multipart/form-data" style="display:inline;">
+    <input type="file" name="archivo_excel" accept=".xlsx,.xls" required style="margin-right:10px;">
+    <button type="submit" class="boton-importar">Importar Excel de clientes</button>
+  </form>
+
+  <form action="{{ url_for('polizas.procesar') }}" method="post" style="display:inline;">
+    <button type="submit" class="boton-procesar">Generar proceso</button>
+  </form>
+
   <a href="{{ url_for('polizas.descargar_avisos') }}" class="boton-descargar">
-    Descargar todos los avisos (.zip)
+    Exportar avisos (.zip)
   </a>
 </section>
 

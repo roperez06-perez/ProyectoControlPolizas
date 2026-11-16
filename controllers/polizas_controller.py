@@ -90,6 +90,40 @@ def importar_clientes():
     return render_template("inicio.html")
 
 
+@polizas_bp.route("/procesar", methods=["POST"])
+def procesar():
+    """Ejecuta el proceso de calculo de estados y cruce con el maestro de clientes.
+
+    Recarga los datos de los PDFs y del Excel (si hay uno importado en sesion),
+    recalcula estados, dias para vencer, primas e inconsistencias.
+    """
+    try:
+        df_clientes = None
+        ruta_excel = session.get("ruta_excel_clientes")
+        if ruta_excel and os.path.exists(ruta_excel):
+            try:
+                df_clientes = cargar_clientes_desde_archivo(ruta_excel)
+            except Exception:
+                flash("No se pudo leer el Excel importado. Se usara el maestro por defecto.", "error")
+
+        resultados = calcular_resultados(df_clientes=df_clientes)
+        conteo = contar_por_estado(resultados)
+        primas = primas_por_aseguradora(resultados)
+        inconsistencias = buscar_inconsistencias(resultados)
+
+        flash(
+            f"Proceso completado: {conteo.get('Vigente', 0)} vigentes, "
+            f"{conteo.get('Por vencer', 0)} por vencer, "
+            f"{conteo.get('Vencida', 0)} vencidas, "
+            f"{len(inconsistencias)} inconsistencias detectadas.",
+            "exito",
+        )
+    except Exception as exc:
+        flash(f"Error al procesar: {exc}", "error")
+
+    return redirect(url_for("polizas.inicio"))
+
+
 @polizas_bp.route("/aviso/<numero>")
 def aviso(numero):
     """Devuelve el aviso en PDF para ver en el navegador.
