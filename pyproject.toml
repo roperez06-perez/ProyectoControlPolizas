@@ -16,4 +16,9 @@ dependencies = [
     "gunicorn>=22.0.0",
 ]
 
+# Evitar que setuptools intente descubrir paquetes automaticamente
+# (este proyecto es una app Flask, no una libreria instalable)
+[tool.setuptools]
+packages = []
+
 
